@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Interaktif Vektor Fisika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed with a task-oriented, thematic flow rather than mirroring the report's linear chapters, enhancing user engagement and conceptual understanding.
+    1.  **Header & Navigasi:** Sticky header for easy navigation between thematic sections.
+    2.  **Hero (Konsep Inti):** An interactive canvas animation immediately contrasts Jarak (scalar) and Perpindahan (vector), grabbing user attention and establishing the core "why" of vectors.
+    3.  **Anatomi Vektor:** A unified interactive module. Users manipulate a vector's magnitude and angle with sliders, and a linked Chart.js graph instantly displays its X/Y components. This merges graphical and analytical representations into one seamless experience.
+    4.  **Aljabar Vektor:** A tabbed interface for vector operations (Penjumlahan, Perkalian) to avoid clutter. The "Penjumlahan" tab is an interactive sandbox for adding vectors, showing both the visual (polygon on canvas) and numerical results. The "Perkalian" tab uses interactive diagrams to explain dot and cross products conceptually. This structure breaks down complex operations into manageable, interactive parts.
+    5.  **Vektor Beraksi (Aplikasi):** This section demonstrates the practical use of vectors with two interactive simulations: Gerak Parabola and Bidang Miring. Users can manipulate variables (initial velocity, angle) and see the physical outcomes in real-time, solidifying their understanding of how vectors solve real-world problems.
+    This user-centric structure guides learners from the foundational "why" to the practical "how," using interaction as the primary teaching tool. -->
+    <!-- Visualization & Content Choices:
+    -   **Scalar vs. Vector (Jarak vs. Perpindahan):** Goal: Compare. Method: Interactive Canvas animation of a moving dot. Interaction: A "play" button initiates the animation. Justification: Visually and dynamically demonstrates the fundamental difference between total path (Jarak) and start-to-end change in position (Perpindahan). Library: Vanilla JS Canvas.
+    -   **Vector Anatomy & Components:** Goal: Organize/Inform. Method: A main vector on a canvas controlled by sliders for magnitude/angle, linked to a real-time Chart.js bar chart for its X/Y components. Interaction: Sliders for magnitude and angle. Justification: Creates a direct, immediate link between a vector's visual form and its mathematical components, making decomposition intuitive. Library: Vanilla JS Canvas, Chart.js.
+    -   **Vector Addition (Resultant):** Goal: Compare/Relationships. Method: An interactive canvas where users define up to two vectors. The canvas draws the vectors head-to-tail (polygon method) and shows the resultant. Numerical results are displayed alongside. Interaction: Input fields for magnitude and angle of two vectors. Justification: Transforms a static textbook diagram into a dynamic "sandbox," allowing users to experiment and see how different vectors combine. Library: Vanilla JS Canvas.
+    -   **Vector Multiplication (Dot & Cross):** Goal: Inform. Method: Two separate interactive diagrams. Each has two vectors and a slider to control the angle between them. The calculated result (scalar for dot, magnitude for cross) updates in real-time. Interaction: Angle slider. Justification: Clarifies the abstract formulas by isolating the effect of the angle on the outcome, highlighting the conceptual difference between 'projection' (dot) and 'turning effect' (cross). Library: Vanilla JS Canvas.
+    -   **Application - Projectile Motion:** Goal: Change/Relationships. Method: A full canvas simulation of a projectile. Sliders control initial velocity and angle. The trajectory is traced, and key parameters (range, height) are calculated. Interaction: Sliders for v0 and angle, a "fire" button. Justification: Provides a dynamic and engaging way to see the superposition of independent horizontal (GLB) and vertical (GLBB) motions, a core vector application. Library: Vanilla JS Canvas.
+    -   **Application - Inclined Plane:** Goal: Organize. Method: An interactive diagram of a block on a plane. A slider controls the incline angle, and the diagram dynamically redraws the decomposition of the weight vector. Interaction: Angle slider. Justification: Makes the abstract concept of decomposing the gravity vector into relevant components visually explicit and easy to grasp. Library: Vanilla JS Canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+            color: #4F4A45;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #588157;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 1rem;
+            border: 1px solid #F5F0E8;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background-color: #588157;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #4a6b49;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-secondary {
+            background-color: #A3B18A;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #8d9a75;
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom-width: 4px;
+            border-color: transparent;
+        }
+        .tab-button.active {
+            font-weight: 600;
+            color: #588157;
+            border-color: #588157;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #588157;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #588157;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-[#4a6b49]">
+                <span class="font-light">Fisika</span>Vektor
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#konsep" class="nav-link">Konsep Inti</a>
+                <a href="#anatomi" class="nav-link">Anatomi</a>
+                <a href="#aljabar" class="nav-link">Aljabar</a>
+                <a href="#aplikasi" class="nav-link">Aplikasi</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="konsep" class="text-center min-h-screen flex flex-col justify-center items-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Besaran yang Punya Arah</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">Vektor bukan sekadar angka, ia adalah instruksi yang memiliki nilai dan tujuan. Mari kita lihat perbedaan fundamentalnya melalui sebuah perjalanan sederhana.</p>
+            
+            <div class="card w-full max-w-4xl p-6">
+                <h3 class="text-2xl font-semibold mb-4 text-center">Jarak (Skalar) vs. Perpindahan (Vektor)</h3>
+                <p class="text-gray-500 mb-6 text-center">Tekan 'Mulai' untuk melihat sebuah objek bergerak. Perhatikan bagaimana "Jarak Tempuh" (total lintasan) dan "Perpindahan" (posisi akhir dari awal) dihitung.</p>
+                <div class="w-full bg-gray-100 rounded-lg p-4 mb-6">
+                    <canvas id="jarakPerpindahanCanvas"></canvas>
+                </div>
+                <div class="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 text-center">
+                    <div>
+                        <p class="text-sm text-gray-500">Jarak Tempuh (Skalar)</p>
+                        <p id="jarakValue" class="text-3xl font-bold text-blue-600">0 m</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Perpindahan (Vektor)</p>
+                        <p id="perpindahanValue" class="text-3xl font-bold text-green-600">0 m</p>
+                    </div>
+                    <button id="startAnimationBtn" class="btn btn-primary">Mulai Animasi</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="anatomi" class="py-20 min-h-screen flex flex-col justify-center">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold">Anatomi Sebuah Vektor</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-4">Setiap vektor dapat diwakili oleh panah dan diuraikan menjadi komponen-komponennya. Geser slider untuk melihat bagaimana magnitudo dan arah memengaruhi komponen X dan Y secara *real-time*.</p>
+            </div>
+            <div class="card w-full max-w-6xl mx-auto p-6 lg:p-8 grid md:grid-cols-2 gap-8 items-center">
+                <div class="w-full">
+                    <h3 class="text-xl font-semibold mb-4">Visualisasi Vektor</h3>
+                    <div class="bg-gray-100 rounded-lg p-2">
+                        <canvas id="vectorDecompositionCanvas"></canvas>
+                    </div>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <label for="magnitudeSlider" class="block text-sm font-medium text-gray-700">Magnitudo: <span id="magnitudeValue" class="font-bold">50</span></label>
+                            <input type="range" id="magnitudeSlider" min="10" max="100" value="50" class="w-full">
+                        </div>
+                        <div>
+                            <label for="angleSlider" class="block text-sm font-medium text-gray-700">Sudut: <span id="angleValue" class="font-bold">45</span>°</label>
+                            <input type="range" id="angleSlider" min="0" max="360" value="45" class="w-full">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Komponen Analitis</h3>
+                    <p class="text-gray-500 mb-4">Grafik batang ini menunjukkan "bayangan" atau proyeksi vektor pada sumbu X dan Y. Perhatikan bagaimana nilainya berubah saat Anda mengubah vektor di sebelah kiri.</p>
+                    <div class="chart-container">
+                        <canvas id="componentChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center text-lg">
+                        <p>$ \vec{F} = <span id="fxValue">35.4</span>\mathbf{i} + <span id="fyValue">35.4</span>\mathbf{j} $</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="aljabar" class="py-20 min-h-screen flex flex-col justify-center">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold">Aljabar Vektor</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-4">Vektor memiliki aturan "matematika"-nya sendiri. Jelajahi cara menjumlahkan dan mengalikan vektor secara interaktif.</p>
+            </div>
+            <div class="card w-full max-w-6xl mx-auto p-6 lg:p-8">
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="flex justify-center -mb-px space-x-4" id="aljabarTabs">
+                        <button data-tab="penjumlahan" class="tab-button active">Penjumlahan</button>
+                        <button data-tab="perkalian" class="tab-button">Perkalian</button>
+                    </nav>
+                </div>
+                
+                <div id="penjumlahanContent" class="tab-content active">
+                    <h3 class="text-xl font-semibold mb-2">Penjumlahan (Resultan)</h3>
+                    <p class="text-gray-500 mb-6">Masukkan magnitudo dan arah untuk dua vektor. Aplikasi akan menggambarkannya dengan metode poligon dan menghitung vektor resultannya secara analitis.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <div class="space-y-4">
+                                <div class="p-4 border rounded-lg">
+                                    <h4 class="font-semibold text-green-700">Vektor 1 (A)</h4>
+                                    <label class="text-sm">Magnitudo:</label>
+                                    <input type="number" id="vec1Mag" value="60" class="w-full p-2 border rounded mt-1">
+                                    <label class="text-sm mt-2 block">Sudut (°):</label>
+                                    <input type="number" id="vec1Ang" value="30" class="w-full p-2 border rounded mt-1">
+                                </div>
+                                <div class="p-4 border rounded-lg">
+                                    <h4 class="font-semibold text-blue-700">Vektor 2 (B)</h4>
+                                    <label class="text-sm">Magnitudo:</label>
+                                    <input type="number" id="vec2Mag" value="40" class="w-full p-2 border rounded mt-1">
+                                    <label class="text-sm mt-2 block">Sudut (°):</label>
+                                    <input type="number" id="vec2Ang" value="120" class="w-full p-2 border rounded mt-1">
+                                </div>
+                                <button id="calculateResultantBtn" class="btn btn-primary w-full">Hitung & Gambar</button>
+                            </div>
+                            <div id="resultantOutput" class="mt-6 p-4 bg-gray-50 rounded-lg text-center">
+                                <p class="text-sm text-gray-500">Resultan (R)</p>
+                                <p class="text-2xl font-bold">R = ?</p>
+                                <p class="text-lg">θ = ?</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-2">
+                            <canvas id="resultantCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="perkalianContent" class="tab-content">
+                     <div class="grid md:grid-cols-2 gap-8">
+                        <div class="p-4 border rounded-lg">
+                             <h3 class="text-xl font-semibold mb-2">Perkalian Titik (Dot Product)</h3>
+                             <p class="text-gray-500 mb-4">Hasilnya adalah skalar. Ini mengukur seberapa "searah" dua vektor. Contoh: Usaha. Geser slider untuk mengubah sudut.</p>
+                             <div class="bg-gray-100 rounded-lg p-2 mb-4">
+                                <canvas id="dotProductCanvas"></canvas>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700">Sudut antara Vektor: <span id="dotAngleValue" class="font-bold">45</span>°</label>
+                            <input type="range" id="dotAngleSlider" min="0" max="180" value="45" class="w-full">
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg text-center">
+                                <p class="text-sm text-gray-500">Hasil Dot Product (A · B)</p>
+                                <p id="dotProductResult" class="text-2xl font-bold">?</p>
+                            </div>
+                        </div>
+                        <div class="p-4 border rounded-lg">
+                             <h3 class="text-xl font-semibold mb-2">Perkalian Silang (Cross Product)</h3>
+                             <p class="text-gray-500 mb-4">Hasilnya adalah vektor baru yang tegak lurus. Ini mengukur "efek putaran". Contoh: Torsi. Geser slider untuk mengubah sudut.</p>
+                             <div class="bg-gray-100 rounded-lg p-2 mb-4">
+                                <canvas id="crossProductCanvas"></canvas>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700">Sudut antara Vektor: <span id="crossAngleValue" class="font-bold">90</span>°</label>
+                            <input type="range" id="crossAngleSlider" min="0" max="180" value="90" class="w-full">
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg text-center">
+                                <p class="text-sm text-gray-500">Magnitudo Cross Product |A x B|</p>
+                                <p id="crossProductResult" class="text-2xl font-bold">?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="aplikasi" class="py-20 min-h-screen flex flex-col justify-center">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold">Vektor Beraksi</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-4">Lihat bagaimana konsep vektor digunakan untuk memecahkan masalah fisika nyata. Mainkan simulasi untuk membangun intuisimu.</p>
+            </div>
+            <div class="space-y-12">
+                <div class="card w-full max-w-6xl mx-auto p-6 lg:p-8">
+                    <h3 class="text-2xl font-semibold mb-2">Aplikasi 1: Gerak Parabola</h3>
+                    <p class="text-gray-500 mb-6">Atur kecepatan awal dan sudut tembak, lalu tekan 'Tembak!'. Perhatikan bagaimana lintasan terbentuk dari kombinasi gerak horizontal (konstan) dan vertikal (berubah karena gravitasi).</p>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="md:col-span-2 bg-gray-100 rounded-lg p-2">
+                            <canvas id="projectileCanvas"></canvas>
+                        </div>
+                        <div class="flex flex-col justify-center space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Kecepatan Awal (m/s): <span id="velocityValue" class="font-bold">50</span></label>
+                                <input type="range" id="velocitySlider" min="10" max="100" value="50" class="w-full">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Sudut Tembak (°): <span id="projectileAngleValue" class="font-bold">45</span></label>
+                                <input type="range" id="projectileAngleSlider" min="1" max="89" value="45" class="w-full">
+                            </div>
+                            <button id="fireProjectileBtn" class="btn btn-primary w-full">Tembak!</button>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg text-center">
+                                <p class="text-sm">Jangkauan Maks.: <strong id="rangeResult">0 m</strong></p>
+                                <p class="text-sm">Tinggi Maks.: <strong id="heightResult">0 m</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card w-full max-w-6xl mx-auto p-6 lg:p-8">
+                    <h3 class="text-2xl font-semibold mb-2">Aplikasi 2: Dinamika Bidang Miring</h3>
+                    <p class="text-gray-500 mb-6">Analisis gaya pada bidang miring adalah contoh klasik penguraian vektor. Geser slider untuk mengubah kemiringan bidang dan lihat bagaimana vektor gaya berat ($\vec{w}$) diuraikan menjadi komponen yang sejajar dan tegak lurus bidang.</p>
+                     <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="bg-gray-100 rounded-lg p-2">
+                            <canvas id="inclineCanvas"></canvas>
+                        </div>
+                        <div class="flex flex-col justify-center space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Sudut Kemiringan (°): <span id="inclineAngleValue" class="font-bold">30</span></label>
+                                <input type="range" id="inclineAngleSlider" min="0" max="60" value="30" class="w-full">
+                            </div>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg space-y-2">
+                                <p>Gaya Berat: $w = mg$</p>
+                                <p class="text-blue-600 font-semibold">Komponen Sejajar: $w_{\parallel} = w \sin\theta = <span id="parallelForce"></span>$</p>
+                                <p class="text-red-600 font-semibold">Komponen Tegak Lurus: $w_{\perp} = w \cos\theta = <span id="perpForce"></span>$</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-gray-800 text-white mt-20">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>Aplikasi Web Interaktif untuk Pembelajaran Vektor Fisika.</p>
+            <p class="text-sm text-gray-400 mt-2">Dibuat untuk memvisualisasikan konsep fisika yang kompleks.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const setupSmoothScroll = () => {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    };
+
+    const setupTabbedInterface = () => {
+        const tabs = document.getElementById('aljabarTabs');
+        const contents = tabs.parentElement.parentElement.querySelectorAll('.tab-content');
+        
+        tabs.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const targetTab = e.target.dataset.tab;
+
+                tabs.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+
+                contents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${targetTab}Content`) {
+                        content.classList.add('active');
+                    }
+                });
+            }
+        });
+    };
+
+    const setupJarakPerpindahan = () => {
+        const canvas = document.getElementById('jarakPerpindahanCanvas');
+        const ctx = canvas.getContext('2d');
+        const jarakEl = document.getElementById('jarakValue');
+        const perpindahanEl = document.getElementById('perpindahanValue');
+        const startBtn = document.getElementById('startAnimationBtn');
+        
+        let w, h;
+        const scale = 5; 
+        const path = [ {x: 80, y: 0}, {x: 0, y: -60} ];
+        let animationFrameId;
+        let progress = 0;
+        let currentSegment = 0;
+        let totalDistance = 0;
+        let startPos, currentPos;
+
+        function resize() {
+            w = canvas.clientWidth;
+            h = canvas.clientHeight;
+            canvas.width = w;
+            canvas.height = h;
+            startPos = { x: w / 2 - (path[0].x / 2) * (scale/5), y: h / 2 + (path[0].y / 2) * (scale/5) };
+            currentPos = { ...startPos };
+            draw();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            ctx.lineTo(w, h/2);
+            ctx.moveTo(w/2, 0);
+            ctx.lineTo(w/2, h);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            let p = { ...startPos };
+            ctx.moveTo(p.x, p.y);
+            path.forEach(segment => {
+                p.x += segment.x * (scale/5);
+                p.y += segment.y * (scale/5);
+                ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(currentPos.x, currentPos.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(startPos.x, startPos.y);
+            ctx.lineTo(currentPos.x, currentPos.y);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#4f4a45';
+            ctx.font = '12px Inter';
+            ctx.fillText('Start', startPos.x - 15, startPos.y + 20);
+        }
+
+        function animate() {
+            if (currentSegment >= path.length) {
+                startBtn.disabled = false;
+                startBtn.textContent = "Ulangi Animasi";
+                cancelAnimationFrame(animationFrameId);
+                return;
+            }
+
+            progress += 0.01;
+            if (progress > 1) {
+                progress = 0;
+                currentSegment++;
+                if (currentSegment >= path.length) {
+                    animate();
+                    return;
+                }
+            }
+
+            let segment = path[currentSegment];
+            let prevPos = { ...startPos };
+            for(let i=0; i<currentSegment; i++) {
+                prevPos.x += path[i].x * (scale/5);
+                prevPos.y += path[i].y * (scale/5);
+            }
+            currentPos.x = prevPos.x + segment.x * progress * (scale/5);
+            currentPos.y = prevPos.y + segment.y * progress * (scale/5);
+
+            let distThisFrame = 0;
+            if (currentSegment > 0) {
+                distThisFrame = path.slice(0, currentSegment).reduce((acc, s) => acc + Math.sqrt(s.x**2 + s.y**2), 0);
+            }
+            distThisFrame += Math.sqrt(segment.x**2 + segment.y**2) * progress;
+            totalDistance = distThisFrame;
+            
+            let displacement = Math.sqrt((currentPos.x - startPos.x)**2 + (currentPos.y - startPos.y)**2);
+
+            jarakEl.textContent = `${(totalDistance).toFixed(1)} m`;
+            perpindahanEl.textContent = `${(displacement / (scale/5)).toFixed(1)} m`;
+            
+            draw();
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        startBtn.addEventListener('click', () => {
+            cancelAnimationFrame(animationFrameId);
+            progress = 0;
+            currentSegment = 0;
+            currentPos = { ...startPos };
+            startBtn.disabled = true;
+            startBtn.textContent = "Berjalan...";
+            animate();
+        });
+
+        window.addEventListener('resize', resize);
+        resize();
+    };
+    
+    const setupVectorDecomposition = () => {
+        const canvas = document.getElementById('vectorDecompositionCanvas');
+        const ctx = canvas.getContext('2d');
+        const magnitudeSlider = document.getElementById('magnitudeSlider');
+        const angleSlider = document.getElementById('angleSlider');
+        const magnitudeValue = document.getElementById('magnitudeValue');
+        const angleValue = document.getElementById('angleValue');
+        const fxValue = document.getElementById('fxValue');
+        const fyValue = document.getElementById('fyValue');
+        let w, h, origin;
+
+        const chartCanvas = document.getElementById('componentChart');
+        let componentChart;
+
+        function resize() {
+            w = canvas.clientWidth;
+            h = canvas.clientHeight;
+            canvas.width = w;
+            canvas.height = h;
+            origin = { x: w / 2, y: h / 2 };
+            draw();
+        }
+
+        function draw() {
+            const magnitude = parseFloat(magnitudeSlider.value);
+            const angle = parseFloat(angleSlider.value);
+            const angleRad = angle * Math.PI / 180;
+            
+            const endX = origin.x + magnitude * Math.cos(angleRad) * 2;
+            const endY = origin.y - magnitude * Math.sin(angleRad) * 2;
+
+            const fx = magnitude * Math.cos(angleRad);
+            const fy = magnitude * Math.sin(angleRad);
+
+            ctx.clearRect(0, 0, w, h);
+            
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, origin.y);
+            ctx.lineTo(w, origin.y);
+            ctx.moveTo(origin.x, 0);
+            ctx.lineTo(origin.x, h);
+            ctx.stroke();
+
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.moveTo(origin.x, origin.y);
+            ctx.lineTo(endX, origin.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(endX, origin.y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.moveTo(origin.x, origin.y);
+            ctx.lineTo(endX, endY);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#16a34a';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - 10 * Math.cos(angleRad - Math.PI / 6), endY + 10 * Math.sin(angleRad - Math.PI / 6));
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - 10 * Math.cos(angleRad + Math.PI / 6), endY + 10 * Math.sin(angleRad + Math.PI / 6));
+            ctx.stroke();
+            
+            magnitudeValue.textContent = magnitude.toFixed(1);
+            angleValue.textContent = angle.toFixed(1);
+            fxValue.textContent = fx.toFixed(1);
+            fyValue.textContent = fy.toFixed(1);
+
+            updateChart(fx, fy);
+        }
+
+        function updateChart(fx, fy) {
+            componentChart.data.datasets[0].data = [fx, fy];
+            componentChart.update();
+        }
+
+        function initChart() {
+            const data = {
+                labels: ['Komponen X (Fx)', 'Komponen Y (Fy)'],
+                datasets: [{
+                    label: 'Nilai Komponen',
+                    data: [0, 0],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.5)',
+                        'rgba(239, 68, 68, 0.5)',
+                    ],
+                    borderColor: [
+                        'rgb(59, 130, 246)',
+                        'rgb(239, 68, 68)',
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            };
+            componentChart = new Chart(chartCanvas, config);
+        }
+
+        magnitudeSlider.addEventListener('input', draw);
+        angleSlider.addEventListener('input', draw);
+        window.addEventListener('resize', resize);
+        
+        initChart();
+        resize();
+    };
+
+    const setupResultantCalculator = () => {
+        const canvas = document.getElementById('resultantCanvas');
+        const ctx = canvas.getContext('2d');
+        const calculateBtn = document.getElementById('calculateResultantBtn');
+        const outputEl = document.getElementById('resultantOutput');
+        let w, h, origin;
+
+        function resize() {
+            w = canvas.clientWidth;
+            h = canvas.clientHeight;
+            canvas.width = w;
+            canvas.height = h;
+            origin = { x: w / 4, y: h * 3 / 4 };
+            draw();
+        }
+
+        function drawArrow(x1, y1, x2, y2, color) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 10 * Math.cos(angle - Math.PI / 6), y2 - 10 * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 10 * Math.cos(angle + Math.PI / 6), y2 - 10 * Math.sin(angle + Math.PI / 6));
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        function draw() {
+            const mag1 = parseFloat(document.getElementById('vec1Mag').value) || 0;
+            const ang1 = parseFloat(document.getElementById('vec1Ang').value) || 0;
+            const mag2 = parseFloat(document.getElementById('vec2Mag').value) || 0;
+            const ang2 = parseFloat(document.getElementById('vec2Ang').value) || 0;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, origin.y);
+            ctx.lineTo(w, origin.y);
+            ctx.moveTo(w/4, 0);
+            ctx.lineTo(w/4, h);
+            ctx.stroke();
+
+            const ang1Rad = ang1 * Math.PI / 180;
+            const v1x = mag1 * Math.cos(ang1Rad);
+            const v1y = mag1 * Math.sin(ang1Rad);
+            const end1 = { x: origin.x + v1x, y: origin.y - v1y };
+            drawArrow(origin.x, origin.y, end1.x, end1.y, '#16a34a');
+
+            const ang2Rad = ang2 * Math.PI / 180;
+            const v2x = mag2 * Math.cos(ang2Rad);
+            const v2y = mag2 * Math.sin(ang2Rad);
+            const end2 = { x: end1.x + v2x, y: end1.y - v2y };
+            drawArrow(end1.x, end1.y, end2.x, end2.y, '#3b82f6');
+
+            const rx = v1x + v2x;
+            const ry = v1y + v2y;
+            const rMag = Math.sqrt(rx**2 + ry**2);
+            const rAng = Math.atan2(ry, rx) * 180 / Math.PI;
+
+            ctx.setLineDash([5, 5]);
+            drawArrow(origin.x, origin.y, end2.x, end2.y, '#ef4444');
+            ctx.setLineDash([]);
+            
+            outputEl.innerHTML = `
+                <p class="text-sm text-gray-500">Resultan (R)</p>
+                <p class="text-2xl font-bold">R = ${rMag.toFixed(1)}</p>
+                <p class="text-lg">θ = ${rAng.toFixed(1)}°</p>
+            `;
+        }
+        
+        calculateBtn.addEventListener('click', draw);
+        window.addEventListener('resize', resize);
+        resize();
+    };
+
+    const setupMultiplication = () => {
+        const dotCanvas = document.getElementById('dotProductCanvas');
+        const crossCanvas = document.getElementById('crossProductCanvas');
+        const dotSlider = document.getElementById('dotAngleSlider');
+        const crossSlider = document.getElementById('crossAngleSlider');
+        const dotAngleVal = document.getElementById('dotAngleValue');
+        const crossAngleVal = document.getElementById('crossAngleValue');
+        const dotResult = document.getElementById('dotProductResult');
+        const crossResult = document.getElementById('crossProductResult');
+        
+        const magA = 50;
+        const magB = 40;
+
+        function drawProduct(canvas, angleSlider, type) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.clientWidth;
+            const h = canvas.height = canvas.clientHeight;
+            const origin = { x: w / 2, y: h / 2 };
+            const angle = parseFloat(angleSlider.value);
+            const angleRad = angle * Math.PI / 180;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const vA_end = { x: origin.x + magA, y: origin.y };
+            const vB_end = { x: origin.x + magB * Math.cos(angleRad), y: origin.y - magB * Math.sin(angleRad) };
+            
+            function drawArrow(x1, y1, x2, y2, color) {
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+                ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
+                const ang = Math.atan2(y2 - y1, x2 - x1);
+                ctx.beginPath(); ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - 10 * Math.cos(ang - Math.PI / 6), y2 - 10 * Math.sin(ang - Math.PI / 6));
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - 10 * Math.cos(ang + Math.PI / 6), y2 - 10 * Math.sin(ang + Math.PI / 6));
+                ctx.stroke();
+            }
+
+            drawArrow(origin.x, origin.y, vA_end.x, vA_end.y, '#16a34a');
+            drawArrow(origin.x, origin.y, vB_end.x, vB_end.y, '#3b82f6');
+            
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#16a34a';
+            ctx.fillText('A', vA_end.x + 5, vA_end.y);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillText('B', vB_end.x + 5, vB_end.y - 5);
+
+            if (type === 'dot') {
+                dotAngleVal.textContent = angle.toFixed(0);
+                const result = magA * magB * Math.cos(angleRad);
+                dotResult.textContent = result.toFixed(0);
+                
+                ctx.setLineDash([2,3]);
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.moveTo(vB_end.x, vB_end.y);
+                ctx.lineTo(origin.x + magB * Math.cos(angleRad), origin.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+            } else {
+                crossAngleVal.textContent = angle.toFixed(0);
+                const result = magA * magB * Math.sin(angleRad);
+                crossResult.textContent = result.toFixed(0);
+                
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(origin.x, origin.y);
+                ctx.lineTo(vA_end.x, vA_end.y);
+                ctx.lineTo(vB_end.x, vB_end.y);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        dotSlider.addEventListener('input', () => drawProduct(dotCanvas, dotSlider, 'dot'));
+        crossSlider.addEventListener('input', () => drawProduct(crossCanvas, crossSlider, 'cross'));
+        
+        drawProduct(dotCanvas, dotSlider, 'dot');
+        drawProduct(crossCanvas, crossSlider, 'cross');
+    };
+
+    const setupProjectileMotion = () => {
+        const canvas = document.getElementById('projectileCanvas');
+        const ctx = canvas.getContext('2d');
+        const fireBtn = document.getElementById('fireProjectileBtn');
+        const vSlider = document.getElementById('velocitySlider');
+        const aSlider = document.getElementById('projectileAngleSlider');
+        const vValue = document.getElementById('velocityValue');
+        const aValue = document.getElementById('projectileAngleValue');
+        const rangeEl = document.getElementById('rangeResult');
+        const heightEl = document.getElementById('heightResult');
+
+        let w, h, animationFrameId;
+        const g = 9.8;
+        let projectiles = [];
+
+        function resize() {
+            w = canvas.width = canvas.clientWidth;
+            h = canvas.height = canvas.clientHeight;
+            draw();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#f3f4f6';
+            ctx.fillRect(0,0,w,h);
+            
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h-20);
+            ctx.lineTo(w, h-20);
+            ctx.stroke();
+
+            projectiles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function update() {
+            projectiles.forEach((p, index) => {
+                p.t += 0.1;
+                p.x = p.startX + p.vx * p.t;
+                p.y = p.startY - (p.vy * p.t - 0.5 * g * p.t**2);
+                if (p.y > h - 20) {
+                    projectiles.splice(index, 1);
+                }
+            });
+            draw();
+            if (projectiles.length > 0) {
+                animationFrameId = requestAnimationFrame(update);
+            } else {
+                cancelAnimationFrame(animationFrameId);
+                fireBtn.disabled = false;
+            }
+        }
+
+        fireBtn.addEventListener('click', () => {
+            const v0 = parseFloat(vSlider.value);
+            const angle = parseFloat(aSlider.value);
+            const angleRad = angle * Math.PI / 180;
+            const vx = v0 * Math.cos(angleRad);
+            const vy = v0 * Math.sin(angleRad);
+
+            const timeOfFlight = (2 * vy) / g;
+            const range = vx * timeOfFlight;
+            const maxHeight = (vy**2) / (2 * g);
+            
+            rangeEl.textContent = `${range.toFixed(1)} m`;
+            heightEl.textContent = `${maxHeight.toFixed(1)} m`;
+
+            projectiles.push({
+                startX: 20,
+                startY: h - 20,
+                x: 20,
+                y: h - 20,
+                vx: vx,
+                vy: vy,
+                t: 0,
+                color: `hsl(${Math.random() * 360}, 70%, 50%)`
+            });
+
+            if (projectiles.length === 1) {
+                fireBtn.disabled = true;
+                update();
+            }
+        });
+        
+        vSlider.addEventListener('input', () => vValue.textContent = vSlider.value);
+        aSlider.addEventListener('input', () => aValue.textContent = aSlider.value);
+        
+        window.addEventListener('resize', resize);
+        resize();
+    };
+    
+    const setupInclinePlane = () => {
+        const canvas = document.getElementById('inclineCanvas');
+        const ctx = canvas.getContext('2d');
+        const angleSlider = document.getElementById('inclineAngleSlider');
+        const angleValue = document.getElementById('inclineAngleValue');
+        const parallelEl = document.getElementById('parallelForce');
+        const perpEl = document.getElementById('perpForce');
+        
+        let w, h;
+        const mass = 10;
+        const g = 9.8;
+        const weight = mass * g;
+
+        function resize() {
+            w = canvas.width = canvas.clientWidth;
+            h = canvas.height = canvas.clientHeight;
+            draw();
+        }
+
+        function drawArrow(x1, y1, x2, y2, color, lw=3) {
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.stroke();
+            const ang = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 10 * Math.cos(ang - Math.PI / 6), y2 - 10 * Math.sin(ang - Math.PI / 6));
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 10 * Math.cos(ang + Math.PI / 6), y2 - 10 * Math.sin(ang + Math.PI / 6));
+            ctx.stroke();
+        }
+
+        function draw() {
+            const angle = parseFloat(angleSlider.value);
+            const angleRad = angle * Math.PI / 180;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            const planeY = h * 0.8;
+            const planeStartX = w * 0.1;
+            const planeEndX = w * 0.9;
+            const planeLength = planeEndX - planeStartX;
+            const planeHeight = planeLength * Math.tan(angleRad);
+            
+            ctx.beginPath();
+            ctx.moveTo(planeStartX, planeY);
+            ctx.lineTo(planeEndX, planeY);
+            ctx.lineTo(planeStartX, planeY - planeHeight);
+            ctx.closePath();
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fill();
+
+            const boxSize = 30;
+            const boxCenterX = planeStartX + planeLength / 2;
+            const boxCenterY = planeY - planeHeight / 2 - (boxSize / 2) / Math.cos(angleRad);
+            
+            ctx.save();
+            ctx.translate(boxCenterX, boxCenterY);
+            ctx.rotate(-angleRad);
+            ctx.fillStyle = '#a3b18a';
+            ctx.fillRect(-boxSize/2, -boxSize/2, boxSize, boxSize);
+            ctx.restore();
+            
+            const w_parallel = weight * Math.sin(angleRad);
+            const w_perp = weight * Math.cos(angleRad);
+
+            const scale = 1.5;
+            drawArrow(boxCenterX, boxCenterY, boxCenterX, boxCenterY + weight * 0.5, '#16a34a');
+            
+            ctx.save();
+            ctx.translate(boxCenterX, boxCenterY);
+            ctx.rotate(-angleRad);
+            drawArrow(0, 0, w_parallel * scale * 0.5, 0, '#3b82f6');
+            drawArrow(0, 0, 0, w_perp * scale * 0.5, '#ef4444');
+            ctx.restore();
+            
+            ctx.setLineDash([2,3]);
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.lineWidth = 1;
+            const endWeight = {x: boxCenterX, y: boxCenterY + weight * 0.5};
+            const endParallel = {
+                x: boxCenterX + (w_parallel * scale * 0.5) * Math.cos(-angleRad),
+                y: boxCenterY + (w_parallel * scale * 0.5) * Math.sin(-angleRad)
+            };
+            ctx.beginPath(); ctx.moveTo(endWeight.x, endWeight.y); ctx.lineTo(endParallel.x, endParallel.y); ctx.stroke();
+            ctx.setLineDash([]);
+
+
+            angleValue.textContent = angle.toFixed(0);
+            parallelEl.textContent = `${w_parallel.toFixed(1)} N`;
+            perpEl.textContent = `${w_perp.toFixed(1)} N`;
+        }
+        
+        angleSlider.addEventListener('input', draw);
+        window.addEventListener('resize', resize);
+        resize();
+    };
+
+    setupSmoothScroll();
+    setupTabbedInterface();
+    setupJarakPerpindahan();
+    setupVectorDecomposition();
+    setupResultantCalculator();
+    setupMultiplication();
+    setupProjectileMotion();
+    setupInclinePlane();
+});
+</script>
+</body>
+</html>
